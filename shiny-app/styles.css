@@ -1,0 +1,11 @@
+/* Nascondi l'elemento inizialmente */
+#loading {
+  display: none;
+}
+
+/* Personalizza l'aspetto del messaggio di caricamento */
+#loading-message {
+  font-size: 18px;
+  color: #333;
+  /* Altre personalizzazioni CSS desiderate */
+}
