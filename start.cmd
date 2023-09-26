@@ -5,7 +5,7 @@ REM Ottieni il percorso assoluto della cartella corrente
 for %%i in ("%cd%") do set "current_directory=%%~fi"
 
 REM Esegui il build del Docker
-docker build -t my-shiny-app "%current_directory%"
+docker build --platform linux/amd64 -t my-shiny-app "%current_directory%"
 
 REM Verifica se la cartella "Data" esiste
 if not exist "%current_directory%\Data" (
@@ -19,4 +19,4 @@ if not exist "%current_directory%\Data" (
 )
 
 REM Avvia il contenitore Docker
-docker run --rm -p 3838:3838 -v "%current_directory%\Data:/scratch" --name shiny my-shiny-app
+docker run --platform linux/amd64 --rm -p 3838:3838 -v "%current_directory%\Data:/scratch" --name shiny my-shiny-app
