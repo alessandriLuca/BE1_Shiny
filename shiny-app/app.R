@@ -57,6 +57,11 @@ ui <- fluidPage(
       uiOutput("numeri_box2")
     )
   ),
+  numericInput(
+  inputId = "seed_input",
+  label = "Seed:",
+  value = 1111
+),
   actionButton("stampare", "Generate"),
   verbatimTextOutput("risultati"),
 
@@ -157,7 +162,8 @@ server <- function(input, output, session) {
       n.cells <- append(n.cells, numero)
     }
     dir.create(paste("/srv/shiny-server/users/", username, sep = ""))
-    F <- makeDataset(input.folder = "/scratch/", output.folder = paste("/srv/shiny-server/users/", username, sep = ""), cell.lines = cell.lines, n.cells = n.cells)
+    seed_val <- as.numeric(input$seed_input)
+    F <- makeDataset(input.folder = "/scratch/", output.folder = paste("/srv/shiny-server/users/", username, sep = ""), cell.lines = cell.lines, n.cells = n.cells,seed=seed_val)
     risultati(risultati_elenco)
     #showModal(modalDialog(
     #  title = "Risultati",

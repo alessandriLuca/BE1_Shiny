@@ -26,7 +26,8 @@ library("R.utils")
 
 #cell.lines=list.dirs(input.folder, full.names = FALSE, recursive = FALSE)
 #n.cells=c(100,10)
-makeDataset <- function(input.folder, output.folder,n.cells,cell.lines){
+makeDataset <- function(input.folder, output.folder,n.cells,cell.lines,seed){
+set.seed(seed)
 for(i in 1:length(cell.lines)){
 if(!is.numeric(n.cells[i])){
 n.cells[i]=0

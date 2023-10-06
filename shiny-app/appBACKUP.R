@@ -57,11 +57,20 @@ ui <- fluidPage(
       uiOutput("numeri_box2")
     )
   ),
+  numericInput(
+  inputId = "seed_input",
+  label = "Seed:",
+  value = 1111
+),
   actionButton("stampare", "Generate"),
   verbatimTextOutput("risultati"),
 
   # Utilizza renderUI per mostrare il pulsante di download solo se showDownloadButton() è TRUE
   uiOutput("downloadButtonOutput"),
+  div(
+    class = "spacer",  # Nuova classe "spacer" per il div vuoto
+    style = "height: 150px;"  # Imposta l'altezza desiderata
+  ),
   div(
         class = "footer",
         includeHTML("footer.html")
@@ -72,18 +81,23 @@ ui <- fluidPage(
 
 tags$head(
   tags$style(HTML("
-    #footer {
+    body {
+      padding-bottom: 100px; /* Spazio inferiore per il footer */
+    }
+
+    .footer {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      background-color: white; /* Cambia il colore di sfondo se necessario */
+      background-color: white;
       text-align: center;
+      z-index: 999; /* Imposta una z-index maggiore per il footer */
     }
 
     .footer-logo {
-      height: 100px; /* Altezza del logo */
-      line-height: 100px; /* Per centrare il logo verticalmente */
+      height: 100px;
+      line-height: 100px;
     }
   "))
 )
@@ -130,7 +144,7 @@ server <- function(input, output, session) {
   # Funzione per stampare +10 una volta premuto il pulsante
   observeEvent(input$stampare, {
   show_modal_gif(
-        src = "giphy.gif",
+        src = "giphy2.gif",
         text = "Working on it!",
   modal_size = "l"
       )
@@ -148,7 +162,8 @@ server <- function(input, output, session) {
       n.cells <- append(n.cells, numero)
     }
     dir.create(paste("/srv/shiny-server/users/", username, sep = ""))
-    F <- makeDataset(input.folder = "/scratch/", output.folder = paste("/srv/shiny-server/users/", username, sep = ""), cell.lines = cell.lines, n.cells = n.cells)
+    seed_val <- as.numeric(input$seed_input)
+    F <- makeDataset(input.folder = "/scratch/", output.folder = paste("/srv/shiny-server/users/", username, sep = ""), cell.lines = cell.lines, n.cells = n.cells,seed=seed_val)
     risultati(risultati_elenco)
     #showModal(modalDialog(
     #  title = "Risultati",
