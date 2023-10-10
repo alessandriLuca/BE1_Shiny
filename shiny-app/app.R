@@ -68,6 +68,9 @@ ui <- fluidPage(
   # Utilizza renderUI per mostrare il pulsante di download solo se showDownloadButton() è TRUE
   uiOutput("downloadButtonOutput"),
   div(
+    includeHTML("description.html")
+  ),
+  div(
     class = "spacer",  # Nuova classe "spacer" per il div vuoto
     style = "height: 150px;"  # Imposta l'altezza desiderata
   ),
