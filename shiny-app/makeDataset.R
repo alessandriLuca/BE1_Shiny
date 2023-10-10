@@ -84,11 +84,11 @@ n.cells[i]=0
     sampling_info <- paste("For the dataset", cell.lines, "you sampled", n.cells, "cells.")
   cat(sampling_info, file = file.path(output.folder, "sampling_info.txt"), sep = "\n")
 
-  #gzip(file.path(output.folder, "matrix.mtx"))
-  #gzip(file.path(output.folder, "barcodes.tsv"))
-  #gzip(file.path(output.folder, "features.tsv"))
+  gzip(file.path(output.folder, "matrix.mtx"))
+  gzip(file.path(output.folder, "barcodes.tsv"))
+  gzip(file.path(output.folder, "features.tsv"))
   #system(paste("cd ",output.folder,";tar -czvf ",file.path(output.folder, "output.tar.gz")," -C . ",file.path(output.folder, "matrix.mtx")," ",file.path(output.folder, "barcodes.tsv")," ",file.path(output.folder, "features.tsv"),sep=""))
-  system(paste("cd ",output.folder,";tar -czvf output.tar.gz matrix.mtx barcodes.tsv features.tsv sampling_info.txt",sep=""))
+  system(paste("cd ",output.folder,";tar -czvf output.tar.gz matrix.mtx.gz barcodes.tsv.gz features.tsv.gz sampling_info.txt",sep=""))
 
   return(TRUE)
 
