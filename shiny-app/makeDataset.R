@@ -26,7 +26,8 @@ library("R.utils")
 
 #cell.lines=list.dirs(input.folder, full.names = FALSE, recursive = FALSE)
 #n.cells=c(100,10)
-makeDataset <- function(input.folder, output.folder,n.cells,cell.lines,seed){
+makeDataset <- function(input.folder, output.folder,n.cells,cell.lines,seed,nDataset){
+n.cells=n.cells*nDataset
 set.seed(seed)
 for(i in 1:length(cell.lines)){
 if(!is.numeric(n.cells[i])){
@@ -38,14 +39,16 @@ n.cells[i]=0
   features.path <- paste(matrix_dir, "features.tsv.gz", sep="/")
   matrix.path <- paste(matrix_dir, "matrix.mtx.gz", sep="/")
   mat <- readMM(file = matrix.path)
-  mat.out <- emptySparse(nrow=dim(mat)[1], ncol=sum(n.cells), format="C")
   feature.names = read.delim(features.path, header = FALSE, stringsAsFactors = FALSE)
-  rownames(mat.out) = feature.names$V1
+  col.mat.out =  vector(mode='list', length=nDataset)
+mat.out=list()
+  for(i in seq(nDataset)){
+  mat.out[[i]] = emptySparse(nrow=dim(mat)[1], format="C")
+  rownames(mat.out[[i]]) = feature.names$V1
 
+  }
   start=1
   end=NULL
-  col.mat.out = NULL
-
   for (i in 1:length(cell.lines)){
   if(n.cells[i]!=0){
     matrix_dir = paste(input.folder, cell.lines[i], sep="/")
@@ -67,28 +70,37 @@ n.cells[i]=0
 
     #subsetting
     n.tmp = sample(x=seq(1,dim(mat)[2]), size=n.cells[i])
-    col.mat.out = c(col.mat.out, barcode.names$V1[n.tmp])
-    tmp.mat.s = mat[,n.tmp]
-    end = start + n.cells[i] - 1
-    mat.out[,start:end] = tmp.mat.s
-    start = end + 1
+    vettori_divisi <- split(n.tmp, cut(seq_along(n.tmp), breaks = nDataset, labels = FALSE))
+    for(jj in seq(nDataset)){
+
+        col.mat.out[[jj]] = append(col.mat.out[[jj]], barcode.names$V1[vettori_divisi[[jj]]])
+        tmp.mat.s = mat[,vettori_divisi[[jj]]]
+        mat.out[[jj]]=cbind(mat.out[[jj]],tmp.mat.s)
     }
+
   }
-
-  colnames(mat.out) = col.mat.out
-# writing borrowd from Write count data in the 10x format Aaron Lun
-
-  writeMM(mat.out, file=file.path(output.folder, "matrix.mtx"))
-  write(as.character(col.mat.out), file=file.path(output.folder, "barcodes.tsv"))
+}
+finalName=c()
+for(jj in seq(nDataset)){
+  colnames(mat.out[[jj]]) = col.mat.out[[jj]]
+  writeMM(mat.out[[jj]], file=file.path(output.folder, "matrix.mtx"))
+  write(as.character(col.mat.out[[jj]]), file=file.path(output.folder, "barcodes.tsv"))
   write.table(feature.names, file=file.path(output.folder, "features.tsv"), row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")
-    sampling_info <- paste("For the dataset", cell.lines, "you sampled", n.cells, "cells.")
+  sampling_info <- paste("For the dataset", cell.lines, "you sampled", n.cells/nDataset, "cells.")
   cat(sampling_info, file = file.path(output.folder, "sampling_info.txt"), sep = "\n")
 
-  gzip(file.path(output.folder, "matrix.mtx"))
-  gzip(file.path(output.folder, "barcodes.tsv"))
-  gzip(file.path(output.folder, "features.tsv"))
-  #system(paste("cd ",output.folder,";tar -czvf ",file.path(output.folder, "output.tar.gz")," -C . ",file.path(output.folder, "matrix.mtx")," ",file.path(output.folder, "barcodes.tsv")," ",file.path(output.folder, "features.tsv"),sep=""))
-  system(paste("cd ",output.folder,";tar -czvf output.tar.gz matrix.mtx.gz barcodes.tsv.gz features.tsv.gz sampling_info.txt",sep=""))
+  gzip(file.path(output.folder, "matrix.mtx"),overwrite=TRUE)
+  gzip(file.path(output.folder, "barcodes.tsv"),overwrite=TRUE)
+  gzip(file.path(output.folder, "features.tsv"),overwrite=TRUE)
+  system(paste("cd ",output.folder,";tar -czvf output_",jj,".tar.gz matrix.mtx.gz barcodes.tsv.gz features.tsv.gz sampling_info.txt",sep=""))
+  finalName=append(finalName,paste("output_",jj,".tar.gz ",sep=""))
+}
+  system(paste("cd ",output.folder,";tar -czvf output.tar.gz ",paste(finalName,collapse=" "),sep=""))
+
+
+# writing borrowd from Write count data in the 10x format Aaron Lun
+
+
 
   return(TRUE)
 
