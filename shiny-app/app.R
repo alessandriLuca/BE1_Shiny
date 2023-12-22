@@ -43,7 +43,7 @@ showDownloadButton <- reactiveVal(FALSE)
 
 ui <- fluidPage(
 
-  titlePanel("Compose your new Dataset"),
+  titlePanel("Composing NSCLC virtual-organoids"),
 
   # Creazione dei box dinamici con nomi delle cartelle
   fluidRow(
